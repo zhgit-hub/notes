@@ -91,7 +91,7 @@ InnoDB会自动根据访问的频率和模式来自动地为某些热点页建�
 
 ##  InnoDB的内存管理
 ### 缓冲池   
-![缓冲池](https://github.com/zhgit-hub/notes/raw/master/image/BufferPool.png)   
+![缓冲池](https://github.com/zhgit-hub/notes/raw/image/BufferPool.png&raw=true)   
 缓冲池就是一块内存区域，用来弥补CPU与磁盘间速度的鸿沟。   
 读取页时，首先会检查缓冲池，如果缓冲池中有，则缓冲命中，直接读取缓冲池中的数据页。如果缓冲池中没有，则读取磁盘中的数据页，并把其存放在缓冲池中。  
 修改页时，会修改位于缓冲池中的页，此时这种页被称为"脏页"，脏页会以一定的频率一起刷新到磁盘上。
