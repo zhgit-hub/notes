@@ -39,7 +39,7 @@ Change Buffer : InsertBuffer的升级，包含Insert Buffer(INSERT、UPDATE)、D
 
 ### Double Write两次写
 部分写失效 : 正在从内存往磁盘写入页时发生数据库宕机，只写了一部分。当页本身发生了损坏，是无法通过redo日志进行重做恢复的，因为redo日志记录的是对页的物理操作。   
-![两次写](https://github.com/zhgit-hub/notes/blob/master/image/DoubleWrite.jpg)     
+![两次写](https://github.com/zhgit-hub/notes/blob/master/image/DoubleWrite.png?raw=true)     
 两次写机制由两部分组成 : 内存中的2MB大小的DoubleWriteBuffer与物理磁盘上共享表空间中一共2MB大小的128个连续的DoubleWrite页。    
 对缓冲池的脏页进行刷新时，先将脏页复制到内存中的DoubleWriteBuffer，然后通过DoubleWriteBuffer分两次每次1MB顺序写到磁盘上共享表空间中的DoubleWrite页，最后将DoubleWriteBuffer离散地写入到各个目的表空间中。   
 当把页写入磁盘时发生了崩溃，恢复过程中可以在共享表空间中的DoubleWrite中找到页的副本，通过该副本来还原损坏的页，再进行重做。
@@ -55,7 +55,7 @@ InnoDB会自动根据访问的频率和模式来自动地为某些热点页建�
 当刷新一个脏页时会检测该页所在区的所有页，若有脏页则一并刷新。可以通过AIO将多个IO操作合并为一个IO操作。
 
 ##  InnoDB逻辑存储结构
-![逻辑存储结构](https://github.com/zhgit-hub/notes/blob/master/image/StorageStructure.jpg)  
+![逻辑存储结构](https://github.com/zhgit-hub/notes/blob/master/image/StorageStructure.png?raw=true)  
 表空间-段-区-页-行
 
 ##  数据完整性
@@ -91,7 +91,7 @@ InnoDB会自动根据访问的频率和模式来自动地为某些热点页建�
 
 ##  InnoDB的内存管理
 ### 缓冲池   
-![缓冲池](https://github.com/zhgit-hub/notes/blob/master/image/BufferPool.jpg)   
+![缓冲池](https://github.com/zhgit-hub/notes/blob/master/image/BufferPool.png?raw=true)   
 缓冲池就是一块内存区域，用来弥补CPU与磁盘间速度的鸿沟。   
 读取页时，首先会检查缓冲池，如果缓冲池中有，则缓冲命中，直接读取缓冲池中的数据页。如果缓冲池中没有，则读取磁盘中的数据页，并把其存放在缓冲池中。  
 修改页时，会修改位于缓冲池中的页，此时这种页被称为"脏页"，脏页会以一定的频率一起刷新到磁盘上。
