@@ -1,4 +1,15 @@
-
+- [MYSQL](#mysql)
+  - [MyISAM与InnoDB的区别](#myisam与innodb的区别)
+  - [InnoDB的关键特性](#innodb的关键特性)
+    - [Insert Buffer插入缓冲](#insert-buffer插入缓冲)
+  - [InnoDB的后台线程分类](#innodb的后台线程分类)
+  - [InnoDB的内存管理](#innodb的内存管理)
+    - [缓冲池](#缓冲池)
+    - [LRU List](#lru-list)
+    - [Free List](#free-list)
+    - [Flush List](#flush-list)
+    - [Check Point机制](#check-point机制)
+- [REDIS](#redis)
 
 #   MYSQL
 ##  MyISAM与InnoDB的区别
@@ -14,7 +25,7 @@
 ### Insert Buffer插入缓冲
 使用条件:非聚集且不唯一的索引   
 在进行插入操作时，插入顺序很可能不是顺序的，如果不使用InsertBuffer则需要离散的访问非聚集索引页(随机读取的性能低于顺序读取)。    
-使用InsertBuffer后，先判断插入或更新的非聚集索引页是否存在于InsertBuffer中，如果存在则直接插入，如果不存在则先加入到一个InsertBuffer中。之后以一定的频率和条件下进行InsertBuffer与非聚集叶子节点的合并操作。    
+使用InsertBuffer后，先判断插入或更新的非聚集索引页是否存在于InsertBuffer中，如果存在则直接插入，如果不存在则先加入到一个InsertBuffer中。之后在一定的频率和条件下进行InsertBuffer与非聚集叶子节点的合并操作。    
 缺点:进行大量的非聚集且不唯一的索引的插入操作时(使用了大量InsertBuffer)，若此时数据库发生了宕机，会有很多InsertBuffer没有合并到非聚集索引中去，恢复会需要很长时间。   
 Change Buffer:InsertBuffer的升级，包含Insert Buffer(INSERT、UPDATE)、Delete Buffer(DELETE)、Purge Buffer。使用条件仍为非聚集且不唯一的索引。一阶段使用InsertBuffer或DeleteBuffer将记录标记为删除，二阶段使用PurgeBuffer将记录真正删除。
 
@@ -26,12 +37,12 @@ Change Buffer:InsertBuffer的升级，包含Insert Buffer(INSERT、UPDATE)、Del
 使用异步IO(AIO)来处理IO请求   
 3、Purge Thread   
 回收已经使用并分配的undo页  
-4、Page Cleaner Thread
+4、Page Cleaner Thread    
 负责脏页的刷新
 
 ##  InnoDB的内存管理
 ### 缓冲池   
-![缓冲池](./image/BufferPool.png)   
+![缓冲池](image/BufferPool.png)   
 缓冲池就是一块内存区域，用来弥补CPU与磁盘间速度的鸿沟。   
 读取页时，首先会检查缓冲池，如果缓冲池中有，则缓冲命中，直接读取缓冲池中的数据页。如果缓冲池中没有，则读取磁盘中的数据页，并把其存放在缓冲池中。  
 修改页时，会修改位于缓冲池中的页，此时这种页被称为"脏页"，脏页会以一定的频率一起刷新到磁盘上。
